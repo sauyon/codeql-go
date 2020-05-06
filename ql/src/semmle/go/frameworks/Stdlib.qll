@@ -96,7 +96,17 @@ module Fmt {
 
   /** A call to `Print`, `Fprint`, or similar. */
   private class PrintCall extends LoggerCall::Range, DataFlow::CallNode {
-    PrintCall() { this.getTarget() instanceof Printer or this.getTarget() instanceof Fprinter }
+    PrintCall() {
+      this.getTarget() instanceof Printer
+      or
+      this.getTarget() instanceof Fprinter and
+      exists(DataFlow::Node target | target = this.getArgument(0) |
+        exists(Variable v, string name | target = v.getARead() |
+          v.hasQualifiedName("os", name) and
+          (name = "Stdout" or name = "Stderr")
+        )
+      )
+    }
 
     override DataFlow::Node getAMessageComponent() { result = this.getAnArgument() }
   }
