@@ -26,8 +26,14 @@ func Getenv(key string, aliases ...string) string {
 }
 
 // GetModDir gets directory of the module containing the package with path `pkgpath`.
-func GetModDir(pkgpath string) string {
-	mod, err := exec.Command("go", "list", "-e", "-f", "{{.Module}}", pkgpath).Output()
+func GetModDir(pkgpath string, modflag string) string {
+	var cmd *exec.Cmd
+	if modflag != "" {
+		cmd = exec.Command("go", "list", "-e", "-f", "{{.Module}}", modflag, pkgpath)
+	} else {
+		cmd = exec.Command("go", "list", "-e", "-f", "{{.Module}}", pkgpath)
+	}
+	mod, err := cmd.Output()
 	if err != nil {
 		if err, ok := err.(*exec.ExitError); ok {
 			log.Printf("Warning: go list command failed, output below:\n%s%s", mod, err.Stderr)
@@ -43,7 +49,12 @@ func GetModDir(pkgpath string) string {
 		return ""
 	}
 
-	modDir, err := exec.Command("go", "list", "-e", "-f", "{{.Module.Dir}}", pkgpath).Output()
+	if modflag != "" {
+		cmd = exec.Command("go", "list", "-e", "-f", "{{.Module.Dir}}", modflag, pkgpath)
+	} else {
+		cmd = exec.Command("go", "list", "-e", "-f", "{{.Module.Dir}}", pkgpath)
+	}
+	modDir, err := cmd.Output()
 	if err != nil {
 		if err, ok := err.(*exec.ExitError); ok {
 			log.Printf("Warning: go list command failed, output below:\n%s%s", modDir, err.Stderr)
@@ -63,8 +74,14 @@ func GetModDir(pkgpath string) string {
 }
 
 // GetPkgDir gets directory containing the package with path `pkgpath`.
-func GetPkgDir(pkgpath string) string {
-	pkgDir, err := exec.Command("go", "list", "-e", "-f", "{{.Dir}}", pkgpath).Output()
+func GetPkgDir(pkgpath string, modflag string) string {
+	var cmd *exec.Cmd
+	if modflag != "" {
+		cmd = exec.Command("go", "list", "-e", "-f", "{{.Dir}}", modflag, pkgpath)
+	} else {
+		cmd = exec.Command("go", "list", "-e", "-f", "{{.Dir}}", pkgpath)
+	}
+	pkgDir, err := cmd.Output()
 	if err != nil {
 		if err, ok := err.(*exec.ExitError); ok {
 			log.Printf("Warning: go list command failed, output below:\n%s%s", pkgDir, err.Stderr)
