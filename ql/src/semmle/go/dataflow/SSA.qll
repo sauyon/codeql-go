@@ -363,8 +363,10 @@ class SsaWithFields extends TSsaWithFields {
   /**
    * Gets an SSA-with-fields variable that is similar to this SSA-with-fields variable in the
    * sense that it has the same root variable and the same sequence of field accesses.
+   *
+   * DEPRECATED: use `VariableWithFields` instead.
    */
-  SsaWithFields similar() {
+  deprecated SsaWithFields similar() {
     result.getBaseVariable().getSourceVariable() = this.getBaseVariable().getSourceVariable() and
     result.getQualifiedName() = this.getQualifiedName()
   }
