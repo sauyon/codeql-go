@@ -48,7 +48,23 @@ private predicate isCond(Expr e) {
   e = any(ParenExpr par | isCond(par)).getExpr()
 }
 
+// private Field getAnAccessedNonLocalField(StructType base) {
+//   exists(SelectorExpr e, Type accessed |
+//     e.refersTo(result) and
+//     base = e.getBase().getType().getBaseType*().getUnderlyingType() and
+//     not result = base.getOwnField(_, _))
+// }
+
+private SelectorExpr getAnImplicitFieldSelectionSelector() {
+  exists(Field f, StructType base |
+    result.refersTo(f) and
+    base = result.getBase().getType().getBaseType*().getUnderlyingType() and
+    not f.getDeclaringType() = base
+  )
+}
+
 private predicate implicitFieldSelection(SelectorExpr e, int i, Field implicitField) {
+  e = getAnImplicitFieldSelectionSelector() and // technically unnecessary but maybe fixes join order?
   exists(StructType baseType, Field child |
     baseType = e.getBase().getType().getBaseType*().getUnderlyingType() and
     (
