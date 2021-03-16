@@ -92,14 +92,14 @@ module Beego {
   }
 
   private class BeegoOutputInstance extends HTTP::ResponseWriter::Range {
-    SsaWithFields v;
+    VariableWithFields v;
 
     BeegoOutputInstance() {
-      this = v.getBaseVariable().getSourceVariable() and
+      this = v.getBaseVariable() and
       v.getType().(PointerType).getBaseType().hasQualifiedName(contextPackagePath(), "BeegoOutput")
     }
 
-    override DataFlow::Node getANode() { result = v.similar().getAUse().getASuccessor*() }
+    override DataFlow::Node getANode() { result = v.getAUse().getASuccessor*() }
 
     /** Gets a header object that corresponds to this HTTP response. */
     DataFlow::MethodCallNode getAHeaderObject() {

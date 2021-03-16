@@ -41,14 +41,14 @@ module NetHttp {
 
   /** The declaration of a variable which either is or has a field that implements the http.ResponseWriter type */
   private class StdlibResponseWriter extends HTTP::ResponseWriter::Range {
-    SsaWithFields v;
+    VariableWithFields v;
 
     StdlibResponseWriter() {
-      this = v.getBaseVariable().getSourceVariable() and
+      this = v.getBaseVariable() and
       exists(Type t | t.implements("net/http", "ResponseWriter") | v.getType() = t)
     }
 
-    override DataFlow::Node getANode() { result = v.similar().getAUse().getASuccessor*() }
+    override DataFlow::Node getANode() { result = v.getAUse().getASuccessor*() }
 
     /** Gets a header object that corresponds to this HTTP response. */
     DataFlow::MethodCallNode getAHeaderObject() {

@@ -87,14 +87,13 @@ predicate hostCheckReachesSink(DataFlow::PathNode sink) {
       or
       exists(
         DataFlow::PathNode otherSink, Write sinkWrite, Write otherSinkWrite,
-        SsaWithFields sinkAccessPath, SsaWithFields otherSinkAccessPath
+        VariableWithFields accessPath
       |
         config.hasFlowPath(source, otherSink) and
         config.isSink(sink.getNode(), sinkWrite) and
         config.isSink(otherSink.getNode(), otherSinkWrite) and
-        sinkWrite.writesField(sinkAccessPath.getAUse(), _, sink.getNode()) and
-        otherSinkWrite.writesField(otherSinkAccessPath.getAUse(), _, otherSink.getNode()) and
-        otherSinkAccessPath = sinkAccessPath.similar()
+        sinkWrite.writesField(accessPath.getAUse(), _, sink.getNode()) and
+        otherSinkWrite.writesField(accessPath.getAUse(), _, otherSink.getNode())
       )
     )
   )

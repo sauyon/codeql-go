@@ -15,7 +15,7 @@ import go
 import semmle.go.security.OpenUrlRedirectCustomizations
 import DataFlow::PathGraph
 
-StringOps::HasPrefix checkForLeadingSlash(SsaWithFields v) {
+StringOps::HasPrefix checkForLeadingSlash(VariableWithFields v) {
   exists(DataFlow::Node substr |
     result.getBaseString() = v.getAUse() and result.getSubstring() = substr
   |
@@ -23,7 +23,7 @@ StringOps::HasPrefix checkForLeadingSlash(SsaWithFields v) {
   )
 }
 
-predicate isCheckedForSecondSlash(SsaWithFields v) {
+predicate isCheckedForSecondSlash(VariableWithFields v) {
   exists(StringOps::HasPrefix hp | hp.getBaseString() = v.getAUse() |
     hp.getSubstring().getStringValue() = "//"
   )
@@ -57,7 +57,7 @@ predicate isCleaned(DataFlow::Node nd) {
   )
 }
 
-predicate isCheckedForSecondBackslash(SsaWithFields v) {
+predicate isCheckedForSecondBackslash(VariableWithFields v) {
   exists(StringOps::HasPrefix hp | hp.getBaseString() = v.getAUse() |
     hp.getSubstring().getStringValue() = "/\\"
   )
@@ -100,7 +100,7 @@ class Configuration extends TaintTracking::Configuration {
    * bad redirect check `check`..
    */
   predicate isSource(DataFlow::Node source, DataFlow::Node check) {
-    exists(SsaWithFields v |
+    exists(VariableWithFields v |
       DataFlow::localFlow(source, v.getAUse()) and
       not exists(source.getAPredecessor()) and
       isBadRedirectCheckOrWrapper(check, v)
@@ -131,7 +131,7 @@ class Configuration extends TaintTracking::Configuration {
  * Holds there is a check `check` that is a bad redirect check, and `v` is either
  * checked directly by `check` or checked by a function that contains `check`.
  */
-predicate isBadRedirectCheckOrWrapper(DataFlow::Node check, SsaWithFields v) {
+predicate isBadRedirectCheckOrWrapper(DataFlow::Node check, VariableWithFields v) {
   isBadRedirectCheck(check, v)
   or
   exists(DataFlow::CallNode call, FuncDef f, FunctionInput input |
@@ -145,15 +145,15 @@ predicate isBadRedirectCheckOrWrapper(DataFlow::Node check, SsaWithFields v) {
  * Holds if `check` checks that `v` has a leading slash, but not whether it has another slash or a
  * backslash in its second position.
  */
-predicate isBadRedirectCheck(DataFlow::Node check, SsaWithFields v) {
+predicate isBadRedirectCheck(DataFlow::Node check, VariableWithFields v) {
   // a check for a leading slash
   check = checkForLeadingSlash(v) and
   // where there does not exist a check for both a second slash and a second backslash
   // (we allow those checks to be on variables that are most likely equivalent to `v`
   // to rule out false positives due to minor variations in data flow)
   not (
-    isCheckedForSecondSlash(v.similar()) and
-    isCheckedForSecondBackslash(v.similar())
+    isCheckedForSecondSlash(v) and
+    isCheckedForSecondBackslash(v)
   )
 }
 
@@ -161,7 +161,7 @@ predicate isBadRedirectCheck(DataFlow::Node check, SsaWithFields v) {
  * Holds if `f` contains a bad redirect check `check`, that checks the parameter `input`.
  */
 predicate isBadRedirectCheckWrapper(DataFlow::Node check, FuncDef f, FunctionInput input) {
-  exists(SsaWithFields v |
+  exists(VariableWithFields v |
     v.getAUse().getAPredecessor*() = input.getExitNode(f) and
     isBadRedirectCheck(check, v)
   )

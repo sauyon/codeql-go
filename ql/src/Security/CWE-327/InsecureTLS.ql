@@ -136,11 +136,10 @@ predicate isInsecureTlsVersionFlow(
     // sink, or to different sinks that refer to the same base and field,
     // which suggests a configurable security mode.
     not secureTlsVersionFlowsToSink(sink, fld) and
-    not exists(SsaWithFields insecureAccessPath, SsaWithFields secureAccessPath |
-      nodeOrDeref(insecureAccessPath.getAUse()) = base and
-      secureAccessPath = insecureAccessPath.similar()
+    not exists(VariableWithFields accessPath |
+      nodeOrDeref(accessPath.getAUse()) = base
     |
-      secureTlsVersionFlowsToField(secureAccessPath, fld)
+      secureTlsVersionFlowsToField(accessPath, fld)
     )
   |
     version = 0 and
