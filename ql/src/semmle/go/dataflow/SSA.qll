@@ -402,7 +402,7 @@ class SsaWithFields extends TSsaWithFields {
 /**
  * Gets a read similar to `node`, according to the same rules as `SsaWithFields.similar()`.
  */
-DataFlow::Node getASimilarReadNode(DataFlow::Node node) {
+deprecated DataFlow::Node getASimilarReadNode(DataFlow::Node node) {
   exists(SsaWithFields readFields | node = readFields.getAUse() |
     result = readFields.similar().getAUse()
   )
